@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flask URL Shortener</title>
+  <style>
+    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
+    input, button { margin: 5px 0; padding: 8px; width: 100%; }
+    .hidden { display: none; }
+    .message { margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Flask URL Shortener</h1>
+
+  <!-- Register -->
+  <h2>Register</h2>
+  <input type="text" id="reg-username" placeholder="Username">
+  <input type="email" id="reg-email" placeholder="Email">
+  <input type="password" id="reg-password" placeholder="Password">
+  <button onclick="registerUser()">Register</button>
+  <div class="message" id="reg-msg"></div>
+
+  <!-- Login -->
+  <h2>Login</h2>
+  <input type="email" id="login-email" placeholder="Email">
+  <input type="password" id="login-password" placeholder="Password">
+  <button onclick="loginUser()">Login</button>
+  <div class="message" id="login-msg"></div>
+
+  <!-- Shorten URL -->
+  <div id="shorten-section" class="hidden">
+    <h2>Shorten URL</h2>
+    <input type="text" id="long-url" placeholder="Enter URL">
+    <button onclick="shortenURL()">Shorten</button>
+    <div class="message" id="short-msg"></div>
+  </div>
+
+<script>
+let token = null;
+
+// Register
+function registerUser() {
+    const username = document.getElementById("reg-username").value;
+    const email = document.getElementById("reg-email").value;
+    const password = document.getElementById("reg-password").value;
+
+    fetch("/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({username, email, password})
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("reg-msg").innerText = data.message || data.error;
+    });
+}
+
+// Login
+function loginUser() {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    fetch("/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email, password})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.access_token){
+            token = data.access_token;
+            document.getElementById("login-msg").innerText = "Logged in successfully!";
+            document.getElementById("shorten-section").classList.remove("hidden");
+        } else {
+            document.getElementById("login-msg").innerText = data.error;
+        }
+    });
+}
+
+// Shorten URL
+function shortenURL() {
+    const url = document.getElementById("long-url").value;
+
+    fetch("/shorten", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({url})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.shortened_url){
+            document.getElementById("short-msg").innerHTML = `Short URL: <a href="${data.shortened_url}" target="_blank">${data.shortened_url}</a>`;
+        } else {
+            document.getElementById("short-msg").innerText = data.error;
+        }
+    });
+}
+</script>
+</body>
+</html>
