@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>Flask URL Shortener</title>
-  <style>
-    body { font-family: Arial; padding: 20px; max-width: 600px; margin: auto; }
-    input, button { margin: 5px 0; padding: 8px; width: 100%; }
-    .hidden { display: none; }
-    .message { margin-top: 10px; font-weight: bold; }
-  </style>
+
+  <!-- Connect CSS file -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
+
+<div class="container">
+
   <h1>Flask URL Shortener</h1>
 
   <!-- Register -->
@@ -21,12 +22,14 @@
   <button onclick="registerUser()">Register</button>
   <div class="message" id="reg-msg"></div>
 
+
   <!-- Login -->
   <h2>Login</h2>
   <input type="email" id="login-email" placeholder="Email">
   <input type="password" id="login-password" placeholder="Password">
   <button onclick="loginUser()">Login</button>
   <div class="message" id="login-msg"></div>
+
 
   <!-- Shorten URL -->
   <div id="shorten-section" class="hidden">
@@ -36,24 +39,37 @@
     <div class="message" id="short-msg"></div>
   </div>
 
+</div>
+
+
 <script>
+
 let token = null;
+
 
 // Register
 function registerUser() {
+
     const username = document.getElementById("reg-username").value;
     const email = document.getElementById("reg-email").value;
     const password = document.getElementById("reg-password").value;
 
     fetch("/register", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({username, email, password})
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username: username,
+            email: email,
+            password: password
+        })
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById("reg-msg").innerText = data.message || data.error;
-    });
+        console.log(data)
+        document.getElementById("reg-msg").innerText = data.message || data.error
+    })
 }
 
 // Login
@@ -72,11 +88,13 @@ function loginUser() {
             token = data.access_token;
             document.getElementById("login-msg").innerText = "Logged in successfully!";
             document.getElementById("shorten-section").classList.remove("hidden");
-        } else {
+        } 
+        else {
             document.getElementById("login-msg").innerText = data.error;
         }
     });
 }
+
 
 // Shorten URL
 function shortenURL() {
@@ -93,12 +111,17 @@ function shortenURL() {
     .then(res => res.json())
     .then(data => {
         if(data.shortened_url){
-            document.getElementById("short-msg").innerHTML = `Short URL: <a href="${data.shortened_url}" target="_blank">${data.shortened_url}</a>`;
-        } else {
+            document.getElementById("short-msg").innerHTML =
+            `Short URL: <a href="${data.shortened_url}" target="_blank">${data.shortened_url}</a>`;
+        } 
+        else {
             document.getElementById("short-msg").innerText = data.error;
         }
     });
 }
+
 </script>
+
 </body>
 </html>
+
