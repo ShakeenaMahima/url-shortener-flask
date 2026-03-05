@@ -21,7 +21,7 @@ The project is built with Flask, SQLAlchemy, Flask-Limiter, and Flask-JWT-Extend
 
 - Database: MySQL (local) / can be switched to cloud DB (Postgres/MySQL)
 
-- Frontend: Minimal HTML with form inputs
+- Frontend: Minimal HTML, CSS with form inputs
 
 - Security: Password hashing with Bcrypt, JWT tokens for authentication
 
