@@ -16,6 +16,9 @@ def register():
     if User.query.filter_by(email=data["email"]).first():
         return jsonify({"error": "Email already exists"}), 400
 
+    if User.query.filter_by(username=data["username"]).first():
+        return jsonify({"error": "Username already exists"}), 400
+
     hashed_password = bcrypt.generate_password_hash(data["password"]).decode("utf-8")
 
     new_user = User(
@@ -28,19 +31,18 @@ def register():
     db.session.commit()
 
     return jsonify({"message": "User registered successfully"}), 201
-
-
 from flask_jwt_extended import create_access_token
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
+
     data = request.get_json()
 
     user = User.query.filter_by(email=data["email"]).first()
 
-    if not user:
+    if not user or not bcrypt.check_password_hash(user.password, data["password"]):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    access_token = create_access_token(identity=str(user.id))  # MUST be string
+    access_token = create_access_token(identity=str(user.id))
 
     return jsonify(access_token=access_token), 200
